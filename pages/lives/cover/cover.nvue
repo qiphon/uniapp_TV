@@ -1,0 +1,71 @@
+<template>
+	<view class="touchWrapper">
+		<list class="category">
+			<cell class="touchItem" v-for="(item, indx) in menus">
+				<view class="inner">
+					<text class="text">
+						{{indx}}
+					</text>
+				</view>
+			</cell>
+		</list>
+		<list class="channel">
+			<cell class="touchItem" v-for="(item, indx) in menus">
+				<view class="inner">
+					<text class="text">
+						{{indx}}商量的方式的方式老地方收到放松放松
+					</text>
+				</view>
+			</cell>
+		</list>
+	</view>
+</template>
+
+<script setup lang="ts">
+	import { ref } from 'vue'
+
+	const menus = ref(new Array(80).fill(1))
+</script>
+
+<style lang="less" scoped>
+	.touchWrapper {
+		padding-top: 80px;
+		width: 750rpx;
+		display: flex;
+		flex: 1;
+		flex-flow: row nowrap;
+
+		.category,
+		.channel {
+			display: flex;
+			flex: 1;
+			max-width: 300px;
+		}
+
+		.touchItem {
+			display: flex;
+			flex-flow: column;
+			border: 10px solid #000;
+
+
+			.inner {
+				display: flex;
+				// 不支持，目前看只能js 计算
+				text-overflow: ellipsis;
+				flex: 1;
+				// width: 200px;
+				border: 1px solid #fff;
+				border-radius: 0 15px;
+			}
+		}
+
+
+		.text {
+			width: 200px;
+			color: #fff;
+			padding: 10rpx;
+			font-size: 16px;
+			// width: 100%;
+		}
+	}
+</style>
