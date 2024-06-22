@@ -13,6 +13,7 @@
 	import { Navs } from '@/utils/index'
 	import { getConfig } from '../../utils/config';
 	import { onShow } from '@dcloudio/uni-app'
+	import { getLives } from '../../utils/lives';
 
 	const addr = ref('')
 
@@ -22,7 +23,9 @@
 			if (res.weatherAddr) {
 				addr.value = res.weatherAddr
 			}
-
+			if (res.playAddr) {
+				getLives(res.playAddr)
+			}
 		})
 	})
 

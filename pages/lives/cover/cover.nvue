@@ -1,30 +1,72 @@
 <template>
-	<view class="touchWrapper">
-		<list class="category">
-			<cell class="touchItem" v-for="(item, indx) in menus">
-				<view class="inner">
-					<text class="text">
-						{{indx}}
-					</text>
-				</view>
-			</cell>
-		</list>
-		<list class="channel">
-			<cell class="touchItem" v-for="(item, indx) in menus">
-				<view class="inner">
-					<text class="text">
-						{{indx}}商量的方式的方式老地方收到放松放松
-					</text>
-				</view>
-			</cell>
-		</list>
+	<view :class="`touchWrapper ${showCover ? 'active' : ''}`" @tap="onWrapperTap">
+		<template v-if="showCover">
+			<list class="category">
+				<cell class="touchItem" :key="item" :data-category="item" v-for="(item, indx) in categorys"
+					@tap.stop="onTapCategory">
+					<view class="inner">
+						<text :class="`text ${item === checkedCategory ? 'active': ''}`">
+							{{item}}
+						</text>
+					</view>
+				</cell>
+			</list>
+			<list class="channel">
+				<cell class="touchItem " :data-channel="item" v-for="(item, indx) in showChannels"
+					@tap.stop="onTapChannel" v-if="checkedCategory" :key="item.name + item.url">
+					<view class="inner">
+						<text :class="`text ${item.url === showSource ? 'active': ''}`">
+							{{item.name}}
+						</text>
+					</view>
+				</cell>
+			</list>
+		</template>
 	</view>
 </template>
 
 <script setup lang="ts">
-	import { ref } from 'vue'
+	import { ref, watchPostEffect, computed, onMounted } from 'vue'
+	import { LiveMsgKey, StorageKey } from '../../../utils/const';
+	import { ChannelValue, LiveChannel, getLiveChannels } from '../../../utils/lives';
 
-	const menus = ref(new Array(80).fill(1))
+	const channels = ref<LiveChannel>()
+	const showCover = ref(false)
+	const checkedCategory = ref('')
+	const currentCheckChannel = ref<ChannelValue>()
+	const showSource = ref('')
+
+	onMounted(() => {
+		getLiveChannels().then(res => {
+			channels.value = res
+		})
+	})
+
+	const categorys = computed(() => Object.keys(channels.value))
+	const showChannels = computed(() => checkedCategory.value && channels.value?.[checkedCategory.value])
+
+
+	uni.$on(LiveMsgKey.showCover, () => {
+		showCover.value = true
+	})
+
+	uni.$on(LiveMsgKey.hideCover, () => {
+		showCover.value = false
+	})
+
+	const onWrapperTap = () => {
+		showCover.value = !showCover.value
+	}
+
+	const onTapCategory = (ev) => {
+		checkedCategory.value = ev.target.attr['data-category']
+	}
+	const onTapChannel = (ev) => {
+		currentCheckChannel.value = ev.target.attr['data-channel']
+		console.log(currentCheckChannel.value, 'currentCheckChannel')
+		showSource.value = currentCheckChannel.value?.url
+		uni.$emit(LiveMsgKey.changeChannel, { value: showSource.value })
+	}
 </script>
 
 <style lang="less" scoped>
@@ -34,18 +76,28 @@
 		display: flex;
 		flex: 1;
 		flex-flow: row nowrap;
+		transition: all ease .4s;
+
+
+		&.active {
+			background-color: rgba(0, 0, 0, .5);
+		}
 
 		.category,
 		.channel {
 			display: flex;
 			flex: 1;
 			max-width: 300px;
+
+			.text.active {
+				color: aqua;
+			}
 		}
 
 		.touchItem {
 			display: flex;
 			flex-flow: column;
-			border: 10px solid #000;
+			border: 10px solid transparent;
 
 
 			.inner {
